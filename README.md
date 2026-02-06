@@ -24,9 +24,18 @@ These nodes are particularly useful for:
 
 ![Example Workflow](workflow.jpg)
 
-`Load Image` -> `Depth Map to Mesh` -> `Simplify Mesh` -> `Preview Mesh as Image` -> `Preview Image`
-                                           |
-                                           +-> `Save Mesh as STL`
+This workflow shows how to generate refined 3D geometry from a standard color image using the recommended pipeline:
+
+1.  **Depth Estimation**: Use a node pack like [ComfyUI-DepthAnythingV2](https://github.com/kijai/ComfyUI-DepthAnythingV2) to generate a high-quality depth map from a source image.
+2.  **Conversion**: The `Depth Map to Mesh` node transforms the grayscale depth image into watertight `trimesh` geometry based on your physical dimensions (`width_mm`, `height_mm`).
+3.  **Refinement**: (Optional) Use `Simplify Mesh` to reduce the triangle count (e.g., from 2M to 100k) while preserving surface detail, making the file significantly faster to open in slicers or CAD software.
+4.  **Verification**: Use `Preview Mesh as Image` to generate an isometric shaded render. This allows you to verify your `power` curve and `depth_mm` settings instantly.
+5.  **Export**: The `Save Mesh as STL` node writes a binary STL file to your ComfyUI `output` directory, ready for 3D printing or CNC toolpath generation.
+
+**Logical Flow:**
+`Load Image` -> `Depth Estimation` -> `Depth Map to Mesh` -> `Simplify Mesh` -> `Save Mesh as STL`
+                                                               |
+                                                               +-> `Preview Mesh as Image` -> `Preview Image`
 
 ---
 
