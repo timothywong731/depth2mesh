@@ -1,148 +1,128 @@
-# Depthmap to 3D Mesh Converter for CNC Milling
+# ComfyUI depth2mesh
 
-This repository provides a Python function to convert a depthmap image into a 3D mesh suitable for CNC milling. The function allows you to specify the physical dimensions of the design, control the mesh resolution, and ensures that the mesh is correctly oriented and enclosed for CNC operations.
+A set of custom nodes for **[ComfyUI](https://github.com/comfyanonymous/ComfyUI)** that allows you to convert **Depth Map** images into **3D STL Meshes** directly within your workflow.
 
-## Table of Contents
-
-- [Features](#features)
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Usage](#usage)
-  - [Function Definition](#function-definition)
-  - [Parameters](#parameters)
-  - [Example](#example)
-- [Visualization](#visualization)
-- [Notes](#notes)
-- [Troubleshooting](#troubleshooting)
-- [License](#license)
-
-## Features
-
-- Converts grayscale depthmap images to 3D meshes.
-- Allows specification of design dimensions: width, depth, and base thickness.
-- Offers control over mesh resolution to balance detail and performance.
-- Correctly aligns image orientation with the mesh coordinate system.
-- Generates an enclosed, watertight mesh suitable for CNC milling.
-
-## Requirements
-
-- Python 3.x
-- [NumPy](https://numpy.org/)
-- [Pillow](https://python-pillow.org/)
-- [trimesh](https://trimsh.org/)
-
-## Installation
-
-Install the required Python packages using `pip`:
-
-```bash
-pip install numpy pillow trimesh
-```
-
-## Usage
-
-### Function Definition
-
-The main function provided is `depthmap_to_3d_mesh`, which converts a depthmap image to a 3D mesh and exports it as an STL file.
-
-```python
-import numpy as np
-from PIL import Image
-import trimesh
-
-def depthmap_to_3d_mesh(depthmap_path, stl_path, width, depth, base_thickness, mesh_resolution=None):
-    # Function implementation goes here
-```
-
-### Parameters
-
-- `depthmap_path` (str): Path to the depthmap image file (grayscale image).
-- `stl_path` (str): Path to save the output STL file.
-- `width` (float): Width of the design in millimeters (mm).
-- `depth` (float): Maximum carving depth in millimeters (mm).
-- `base_thickness` (float): Minimum thickness to leave at the base in millimeters (mm).
-- `mesh_resolution` (int or tuple, optional):
-  - If an integer is provided, it specifies the number of vertices along the width (`width_res`), and the height resolution is calculated automatically to maintain the aspect ratio.
-  - If a tuple `(width_res, height_res)` is provided, both resolutions are used.
-  - If `None`, the original image resolution is used.
-
-### Example
-
-```python
-import numpy as np
-from PIL import Image
-import trimesh
-
-def depthmap_to_3d_mesh(depthmap_path, stl_path, width, depth, base_thickness, mesh_resolution=None):
-    # [Function implementation as provided in the assistant's previous message]
-    # Ensure the implementation code is included here.
-
-# Example usage
-depthmap_path = 'path/to/your/depthmap_image.png'  # Replace with your depthmap image path
-stl_path = 'path/to/save/output_mesh.stl'          # Replace with your desired output path
-
-# Design parameters
-width = 150           # Width of the design in mm
-depth = 8             # Maximum carving depth in mm
-base_thickness = 11   # Minimum thickness at the base in mm
-mesh_resolution = 100 # Number of vertices along the width; height resolution is calculated automatically
-
-# Generate the 3D mesh
-depthmap_to_3d_mesh(
-    depthmap_path,
-    stl_path,
-    width,
-    depth,
-    base_thickness,
-    mesh_resolution
-)
-```
-
-## Visualization
-
-To verify the generated mesh before proceeding to CNC milling, you can visualize it using `trimesh`:
-
-```python
-import trimesh
-
-# Load and display the mesh
-mesh = trimesh.load(stl_path)
-mesh.show()
-```
-
-## Notes
-
-- **Coordinate System Alignment**: The function sets the top of the stock at `z = 0` and carves into negative `z` values, aligning with standard CNC milling practices.
-- **Image Orientation**:
-  - The depthmap image is flipped vertically (`np.flipud`) to match the mesh coordinate system.
-  - Ensure that the depthmap image is correctly oriented; if the design appears inverted, you may need to adjust the image or the code accordingly.
-- **Depthmap Interpretation**:
-  - **White pixels** (`value = 255`): Represent the highest points (no carving, `z = 0`).
-  - **Black pixels** (`value = 0`): Represent the lowest points (maximum carving depth, `z = -depth`).
-- **Mesh Resolution**:
-  - Higher `mesh_resolution` values produce more detailed meshes but require more processing power.
-  - Adjust `mesh_resolution` to balance between detail and performance.
-- **Base Thickness**:
-  - The mesh ensures there is a `base_thickness` of material left at the bottom.
-  - The total thickness of the mesh is `base_thickness + depth`.
-
-## Troubleshooting
-
-- **Design Appears Flipped**:
-  - If the design is flipped horizontally or vertically, adjust the image orientation or modify the code by adding or removing `np.fliplr` or `np.flipud`.
-- **Mesh Not Watertight**:
-  - Ensure that all faces are correctly defined.
-  - Use `mesh.is_watertight` to check the mesh integrity:
-    ```python
-    if not mesh.is_watertight:
-        print("Warning: The generated mesh is not watertight.")
-    else:
-        print("The mesh is watertight and ready for CNC milling.")
-    ```
-- **Performance Issues**:
-  - Reduce the `mesh_resolution` to simplify the mesh.
-  - Ensure your system has sufficient resources to handle high-resolution meshes.
+These nodes are particularly useful for:
+*   **CNC Milling / CAM**: Generating height-mapped reliefs from AI-generated images.
+*   **3D Printing**: Creating weak-relief lithophanes or textured surfaces.
+*   **3D Assets**: Rapid prototyping of terrain or embossed textures.
 
 ---
 
-**Disclaimer**: This code is provided as-is without warranty of any kind. Use it at your own risk. Always verify the generated mesh before using it in CNC milling operations to prevent damage to equipment or materials.
+## Features
+
+*   **Depth Map to Mesh**: Converts an image-based depth map (grayscale) into a closed, watertight 3D mesh.
+*   **Physical Dimensions**: Define precise output size in millimeters (Width, Height, Max Depth).
+*   **Mesh Simplification**: Reduce face count on dense meshes for easier handling in slicers or CAM software.
+*   **3D Preview**: View a lightning-fast isometric render of your mesh directly in ComfyUI.
+*   **Save as STL**: Export watertight `.stl` files ready for manufacturing.
+*   **Alpha Masking**: Uses the image alpha channel to define the active shape (pixels with alpha=0 are ignored).
+
+---
+
+## Example Workflow
+
+![Example Workflow](workflow.jpg)
+
+`Load Image` -> `Depth Map to Mesh` -> `Simplify Mesh` -> `Preview Mesh as Image` -> `Preview Image`
+                                           |
+                                           +-> `Save Mesh as STL`
+
+---
+
+## Installation
+
+### Method 1: ComfyUI Manager (Recommended)
+1.  Install [ComfyUI Manager](https://github.com/ltdrdata/ComfyUI-Manager).
+2.  Search for **depth2mesh** in the "Install Custom Nodes" list.
+3.  Click Install and Restart ComfyUI.
+
+### Method 2: Manual Installation
+Clone this repository into your `ComfyUI/custom_nodes/` directory and install dependencies.
+
+```bash
+cd ComfyUI/custom_nodes/
+git clone https://github.com/your-username/depth2mesh.git
+cd depth2mesh
+
+# Install requirements
+pip install -r requirements.txt
+```
+
+*Note: For Windows users, if you encounter issues installing `open3d` or `fast-simplification`, ensure you have the latest Visual C++ Redistributables.*
+
+---
+
+## Nodes Overview
+
+### 1. Depth Map to Mesh
+The core node that performs the conversion.
+
+*   **Inputs**:
+    *   `image`: The source depth map (IMAGE). Brighter pixels = higher geometry. Alpha channel cuts the mesh.
+    *   `width_mm`: Physical X-axis width of the output model.
+    *   `height_mm`: Physical Y-axis height of the output model.
+    *   `depth_mm`: Maximum Z-axis height (thickness) of the relief.
+    *   `power`: Curve response. `1.0` is linear. `>1.0` makes peaks sharper, `<1.0` makes gradients flatter.
+*   **Outputs**:
+    *   `MESH`: A Trimesh geometry object passed to other nodes.
+
+### 2. Simplify Mesh
+Reduces the polygon count of the generated mesh. This is crucial as raw pixel-to-mesh conversion can produce millions of triangles (one pair per pixel).
+
+*   **Inputs**:
+    *   `mesh`: Input Mesh.
+    *   `target_face_count`: Desired maximum number of faces (e.g., 100,000).
+*   **Outputs**:
+    *   `MESH`: The decimated mesh.
+
+*Note: This node attempts to use `fast-simplification` for speed, falling back to standard `trimesh` methods if unavailable.*
+
+### 3. Preview Mesh as Image
+Generates a static 3D isometric image of the mesh to verify geometry without leaving ComfyUI.
+
+*   **Inputs**:
+    *   `mesh`: Input Mesh.
+*   **Outputs**:
+    *   `IMAGE`: A rendered view of the mesh (can be connected to a generic `Preview Image` node).
+
+### 4. Save Mesh as STL
+Saves the mesh to your ComfyUI output directory.
+
+*   **Inputs**:
+    *   `mesh`: Input Mesh to save.
+    *   `filename_prefix`: Filename pattern (e.g., `MyRelief_`). Automatically increments counters (e.g., `MyRelief_00001.stl`).
+
+---
+
+## Standalone Python Usage
+
+You can also use the core logic as a standard Python library for batch processing scripts outside of ComfyUI.
+
+```python
+from PIL import Image
+from depth2mesh.core import depth2mesh
+
+# Load image
+img = Image.open("depthmap.png")
+
+# Generate Mesh
+# width=100mm, height=100mm, max_depth=10mm
+mesh = depth2mesh(img, 100.0, 100.0, 10.0)
+
+# Export
+mesh.export("output.stl")
+```
+
+## Requirements
+
+*   **Python 3.10+**
+*   **trimesh**: Handing geometry.
+*   **numpy**: Matrix operations.
+*   **Pillow**: Image processing.
+*   **matplotlib**: Generating previews.
+*   **fast-simplification**: (Optional) High-performance mesh decimation.
+
+## License
+
+MIT License.

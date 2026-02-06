@@ -60,7 +60,7 @@ class DepthMapToMesh:
 
     RETURN_TYPES = ("MESH",)
     FUNCTION = "generate"
-    CATEGORY = "DepthMap2STL"
+    CATEGORY = "depth2mesh"
 
     def generate(self, image, width_mm, height_mm, depth_mm, power):
         # ComfyUI provides images as [Batch, Height, Width, Channels] tensors in range 0-1.
@@ -100,7 +100,7 @@ class SimplifyMesh:
 
     RETURN_TYPES = ("MESH",)
     FUNCTION = "simplify"
-    CATEGORY = "DepthMap2STL"
+    CATEGORY = "depth2mesh"
 
     def simplify(self, mesh, target_face_count):
         # We use trimesh's simplify_quadric_decimation.
@@ -140,7 +140,7 @@ class SaveMeshSTL:
     RETURN_TYPES = ()
     FUNCTION = "save"
     OUTPUT_NODE = True  # Tells ComfyUI that this node has side effects (saving files)
-    CATEGORY = "DepthMap2STL"
+    CATEGORY = "depth2mesh"
 
     def save(self, mesh, filename_prefix):
         # Locate ComfyUI's output folder
@@ -182,12 +182,21 @@ class PreviewMeshSTL:
 
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "preview"
-    CATEGORY = "DepthMap2STL"
+    CATEGORY = "depth2mesh"
 
     def preview(self, mesh):
         from io import BytesIO
 
         import matplotlib.pyplot as plt
+
+        # Optimization: Simplify the mesh significantly for the preview only.
+        # Matplotlib handles ~50k faces reasonably well; 2M+ will hang.
+        PREVIEW_FACE_LIMIT = 50000
+        render_mesh = mesh
+        if len(mesh.faces) > PREVIEW_FACE_LIMIT:
+            render_mesh = mesh.simplify_quadric_decimation(
+                face_count=PREVIEW_FACE_LIMIT
+            )
 
         # Setup pure-python rendering using Matplotlib
         # This avoids needing a heavy 3D engine just for a preview thumbnail.
@@ -195,8 +204,8 @@ class PreviewMeshSTL:
         ax = fig.add_subplot(111, projection="3d")
 
         # Extract geometry
-        v = mesh.vertices
-        f = mesh.faces
+        v = render_mesh.vertices
+        f = render_mesh.faces
 
         # Plot mesh surfaces
         ax.plot_trisurf(
