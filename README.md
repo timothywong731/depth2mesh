@@ -32,10 +32,6 @@ This example workflow shows how to generate refined 3D geometry from a standard 
 4.  **Verification**: Use `Preview Mesh as Image` to generate an isometric shaded render. This allows you to verify your `power` curve and `depth_mm` settings instantly.
 5.  **Export**: The `Save Mesh as STL` node writes a binary STL file to your ComfyUI `output` directory, ready for 3D printing or CNC toolpath generation.
 
-**Logical Flow:**
-`Load Image` -> `Depth Estimation` -> `Depth Map to Mesh` -> `Simplify Mesh` -> `Save Mesh as STL`
-                                                               |
-                                                               +-> `Preview Mesh as Image` -> `Preview Image`
 
 ## Installation
 
@@ -49,14 +45,14 @@ Clone this repository into your `ComfyUI/custom_nodes/` directory and install de
 
 ```bash
 cd ComfyUI/custom_nodes/
-git clone https://github.com/your-username/depth2mesh.git
-cd depth2mesh
+git clone https://github.com/timothywong731/ComfyUI-Depth2Mesh
+cd ComfyUI-Depth2Mesh
 
 # Install requirements
 pip install -r requirements.txt
 ```
 
-*Note: For Windows users, if you encounter issues installing `open3d` or `fast-simplification`, ensure you have the latest Visual C++ Redistributables.*
+*Note: For Windows users, if you encounter issues installing `fast-simplification`, ensure you have the latest Visual C++ Redistributables.*
 
 ## Nodes Overview
 
@@ -80,8 +76,6 @@ Reduces the polygon count of the generated mesh. This is crucial as raw pixel-to
     *   `target_face_count`: Desired maximum number of faces (e.g., 100,000).
 *   **Outputs**:
     *   `MESH`: The decimated mesh.
-
-*Note: This node attempts to use `fast-simplification` for speed, falling back to standard `trimesh` methods if unavailable.*
 
 ### 3. Preview Mesh as Image
 Generates a static 3D isometric image of the mesh to verify geometry without leaving ComfyUI.
