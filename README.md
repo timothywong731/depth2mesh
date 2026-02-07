@@ -1,4 +1,8 @@
-# ComfyUI depth2mesh
+# ComfyUI Depth2Mesh
+
+<p align="center">
+  <img src="logo.png" width="300" alt="depth2mesh logo">
+</p>
 
 A set of custom nodes for **[ComfyUI](https://github.com/comfyanonymous/ComfyUI)** that allows you to convert **Depth Map** images into **3D STL Meshes** directly within your workflow.
 
@@ -7,7 +11,6 @@ These nodes are particularly useful for:
 *   **3D Printing**: Creating weak-relief lithophanes or textured surfaces.
 *   **3D Assets**: Rapid prototyping of terrain or embossed textures.
 
----
 
 ## Features
 
@@ -18,13 +21,10 @@ These nodes are particularly useful for:
 *   **Save as STL**: Export watertight `.stl` files ready for manufacturing.
 *   **Alpha Masking**: Uses the image alpha channel to define the active shape (pixels with alpha=0 are ignored).
 
----
-
-## Example Workflow
 
 ![Example Workflow](workflow.jpg)
 
-This workflow shows how to generate refined 3D geometry from a standard color image using the recommended pipeline:
+This example workflow shows how to generate refined 3D geometry from a standard color image using the recommended pipeline:
 
 1.  **Depth Estimation**: Use a node pack like [ComfyUI-DepthAnythingV2](https://github.com/kijai/ComfyUI-DepthAnythingV2) to generate a high-quality depth map from a source image.
 2.  **Conversion**: The `Depth Map to Mesh` node transforms the grayscale depth image into watertight `trimesh` geometry based on your physical dimensions (`width_mm`, `height_mm`).
@@ -36,8 +36,6 @@ This workflow shows how to generate refined 3D geometry from a standard color im
 `Load Image` -> `Depth Estimation` -> `Depth Map to Mesh` -> `Simplify Mesh` -> `Save Mesh as STL`
                                                                |
                                                                +-> `Preview Mesh as Image` -> `Preview Image`
-
----
 
 ## Installation
 
@@ -59,8 +57,6 @@ pip install -r requirements.txt
 ```
 
 *Note: For Windows users, if you encounter issues installing `open3d` or `fast-simplification`, ensure you have the latest Visual C++ Redistributables.*
-
----
 
 ## Nodes Overview
 
@@ -102,7 +98,6 @@ Saves the mesh to your ComfyUI output directory.
     *   `mesh`: Input Mesh to save.
     *   `filename_prefix`: Filename pattern (e.g., `MyRelief_`). Automatically increments counters (e.g., `MyRelief_00001.stl`).
 
----
 
 ## Standalone Python Usage
 
@@ -122,16 +117,3 @@ mesh = depth2mesh(img, 100.0, 100.0, 10.0)
 # Export
 mesh.export("output.stl")
 ```
-
-## Requirements
-
-*   **Python 3.10+**
-*   **trimesh**: Handing geometry.
-*   **numpy**: Matrix operations.
-*   **Pillow**: Image processing.
-*   **matplotlib**: Generating previews.
-*   **fast-simplification**: (Optional) High-performance mesh decimation.
-
-## License
-
-MIT License.
