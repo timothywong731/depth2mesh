@@ -16,6 +16,7 @@ scipy = "^1.17.0"
 
 [tool.poetry.group.dev.dependencies]
 ipykernel = "^6.29.5"
+pytest-cov = "^7.0.0"
 
 [build-system]
 requires = ["poetry-core"]
